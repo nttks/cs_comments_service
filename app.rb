@@ -148,6 +148,7 @@ require './api/flags'
 require './api/pins'
 require './api/notifications_and_subscriptions'
 require './api/notifications'
+require './api/stats'
 
 if RACK_ENV.to_s == "development"
   get "#{APIPREFIX}/clean" do
