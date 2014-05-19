@@ -25,9 +25,22 @@ class CommentThread < Content
   include Tire::Model::Search
   include Tire::Model::Callbacks
 
-  mapping do
-    indexes :title, type: :string, analyzer: :snowball, boost: 5.0, stored: true, term_vector: :with_positions_offsets
-    indexes :body, type: :string, analyzer: :snowball, stored: true, term_vector: :with_positions_offsets
+  settings "analysis" => {
+              "tokenizer" => {
+                  "kuromoji" => {
+                     "type" => "kuromoji_tokenizer"
+                  }
+              },
+              "analyzer" => {
+                  "kuromoji" => {
+                      "type" => "custom",
+                      "tokenizer" => "kuromoji"
+                  }
+              }
+          }
+  mapping :_all => { :analyzer => "kuromoji" } do
+    indexes :title, type: :string, analyzer: :kuromoji, boost: 5.0, stored: true, term_vector: :with_positions_offsets
+    indexes :body, type: :string, analyzer: :kuromoji, stored: true, term_vector: :with_positions_offsets
     indexes :created_at, type: :date, included_in_all: false
     indexes :updated_at, type: :date, included_in_all: false
     indexes :last_activity_at, type: :date, included_in_all: false
@@ -98,7 +111,7 @@ class CommentThread < Content
         
     search = Tire::Search::Search.new 'comment_threads'
 
-    search.query {|query| query.text :_all, params["text"]} if params["text"]
+    search.query {|query| query.text :_all, params["text"] , operator: "AND"} if params["text"]
     search.highlight({title: { number_of_fragments: 0 } } , {body: { number_of_fragments: 0 } }, options: { tag: "<highlight>" })
     search.filter(:term, commentable_id: params["commentable_id"]) if params["commentable_id"]
     search.filter(:terms, commentable_id: params["commentable_ids"]) if params["commentable_ids"]
@@ -126,7 +139,7 @@ class CommentThread < Content
     if params["text"]
 
       search = Tire::Search::Search.new 'comments'
-      search.query {|query| query.text :_all, params["text"]} if params["text"]
+      search.query {|query| query.text :_all, params["text"] , operator: "AND"} if params["text"]
       search.filter(:term, course_id: params["course_id"]) if params["course_id"]
       search.size CommentService.config["max_deep_search_comment_count"].to_i
       
