@@ -30,8 +30,9 @@ class Comment < Content
   include Tire::Model::Search
   include Tire::Model::Callbacks
 
+  settings "analysis" => {"tokenizer" => {"kuromoji" => {"type" => "kuromoji_tokenizer"}}, "analyzer" => {"kuromoji" => {"type" => "custom", "tokenizer" => "kuromoji"}}}
   mapping do
-    indexes :body, type: :string, analyzer: :english, stored: true, term_vector: :with_positions_offsets
+    indexes :body, type: :string, analyzer: :kuromoji, stored: true, term_vector: :with_positions_offsets
     indexes :course_id, type: :string, index: :not_analyzed, included_in_all: false
     #indexes :comment_thread_id, type: :string, stored: true, index: :not_analyzed, included_in_all: false
     #current prod tire doesn't support indexing BSON ids, will reimplement when we upgrade
