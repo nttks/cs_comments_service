@@ -31,9 +31,10 @@ class CommentThread < Content
 
   index_name Content::ES_INDEX_NAME
 
+  settings "analysis" => {"tokenizer" => {"kuromoji" => {"type" => "kuromoji_tokenizer"}}, "analyzer" => {"kuromoji" => {"type" => "custom", "tokenizer" => "kuromoji"}}}
   mapping do
-    indexes :title, type: :string, analyzer: :english, boost: 5.0, stored: true, term_vector: :with_positions_offsets
-    indexes :body, type: :string, analyzer: :english, stored: true, term_vector: :with_positions_offsets
+    indexes :title, type: :string, analyzer: :kuromoji, boost: 5.0, stored: true, term_vector: :with_positions_offsets
+    indexes :body, type: :string, analyzer: :kuromoji, stored: true, term_vector: :with_positions_offsets
     indexes :created_at, type: :date, included_in_all: false
     indexes :updated_at, type: :date, included_in_all: false
     indexes :last_activity_at, type: :date, included_in_all: false
