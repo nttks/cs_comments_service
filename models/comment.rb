@@ -33,8 +33,9 @@ class Comment < Content
 
   index_name Content::ES_INDEX_NAME
 
+  settings "analysis" => {"tokenizer" => {"kuromoji" => {"type" => "kuromoji_tokenizer"}}, "analyzer" => {"kuromoji" => {"type" => "custom", "tokenizer" => "kuromoji"}}}
   mapping do
-    indexes :body, type: :string, analyzer: :english, stored: true, term_vector: :with_positions_offsets
+    indexes :body, type: :string, analyzer: :kuromoji, stored: true, term_vector: :with_positions_offsets
     indexes :course_id, type: :string, index: :not_analyzed, included_in_all: false
     indexes :comment_thread_id, type: :string, index: :not_analyzed, included_in_all: false, as: 'comment_thread_id'
     indexes :commentable_id, type: :string, index: :not_analyzed, included_in_all: false, as: 'commentable_id'
